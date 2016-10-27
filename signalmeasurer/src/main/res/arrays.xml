@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string-array name="criteria">
+        <item>0|FE0000|basically no usable signal</item>
+        <item>2|FE5400|bad, hard to stay connected</item>
+        <item>4|FEA900|weak, dropping calls</item>
+        <item>6|FEFE00|getting on the weak side</item>
+        <item>8|A9FE00|normal downtown</item>
+        <item>11|54FE00|extremely good, rare</item>
+        <item>13|00FF00|very strong, near a cell tower</item>
+    </string-array>
+
+</resources>
