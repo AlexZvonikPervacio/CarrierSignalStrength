@@ -1,4 +1,5 @@
 <resources>
     <string name="app_name">SignalMeasurer</string>
     <string name="not_detectable">Unknown or not detectable</string>
+    <string name="no_sim_card">Sim card is not installed or is in inactive state</string>
 </resources>

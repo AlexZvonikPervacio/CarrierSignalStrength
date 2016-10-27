@@ -11,6 +11,7 @@ import android.text.style.ForegroundColorSpan;
 import android.view.View;
 import android.widget.TextView;
 
+import pervacio.com.signalmeasurer.MeasuringStrengthException;
 import pervacio.com.signalmeasurer.PhoneSignalStateListener;
 import pervacio.com.signalmeasurer.SignalCriteria;
 
@@ -37,12 +38,11 @@ public class MainActivity extends AppCompatActivity implements
     }
 
     public void measureStrength(View view) {
-        final int asu = mPhoneStateListener.getAsu();
-        String string = getString(R.string.on_request_string, asu, mPhoneStateListener.getDbm());
-        if (asu == 99) {
-            string += " (" + getString(R.string.not_detectable) + ")";
+        try {
+            mOnRequestMeasurer.setText(getString(R.string.on_request_string, mPhoneStateListener.getAsu(), mPhoneStateListener.getDbm()));
+        } catch (MeasuringStrengthException e) {
+            mOnRequestMeasurer.setText(e.getMessage());
         }
-        mOnRequestMeasurer.setText(string);
     }
 
     @Override

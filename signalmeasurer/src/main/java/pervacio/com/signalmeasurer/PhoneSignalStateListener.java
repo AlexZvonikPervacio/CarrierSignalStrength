@@ -13,14 +13,15 @@ public class PhoneSignalStateListener extends PhoneStateListener {
 
     private SignalState mSignalStateListener;
     private SignalStrength mLastSignalStrength;
+    private TelephonyManager mTelephonyManager;
     private Context mContext;
 
     public PhoneSignalStateListener(SignalState signalStateListener, Context context) {
         this.mSignalStateListener = signalStateListener;
         mContext = context;
         SIGNAL_CRITERIA_LIST = Utils.getSignalCriterion(context);
-        TelephonyManager telephonyManager = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
-        telephonyManager.listen(this, PhoneStateListener.LISTEN_SIGNAL_STRENGTHS);
+        mTelephonyManager = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
+        mTelephonyManager.listen(this, PhoneStateListener.LISTEN_SIGNAL_STRENGTHS);
     }
 
     @Override
@@ -33,16 +34,20 @@ public class PhoneSignalStateListener extends PhoneStateListener {
         int mSignalStrengthAsu = signalStrength.getGsmSignalStrength();
         if (mSignalStrengthAsu == 99) {
             mSignalStateListener.onFailedToMeasure(mContext.getString(R.string.not_detectable));
+        } else if (!isSimCardInValidState()) {
+            mSignalStateListener.onFailedToMeasure(mContext.getString(R.string.no_sim_card));
         } else {
             mSignalStateListener.onSignalChanged(findCriteria(mSignalStrengthAsu));
         }
     }
 
-    public int getAsu() {
+    public int getAsu() throws MeasuringStrengthException {
+        validateSimCardAndSignalLevel();
         return mLastSignalStrength.getGsmSignalStrength();
     }
 
-    public int getDbm() {
+    public int getDbm() throws MeasuringStrengthException {
+        validateSimCardAndSignalLevel();
         return mLastSignalStrength.isGsm() ? 2 *
                 mLastSignalStrength.getGsmSignalStrength() - 113 :
                 mLastSignalStrength.getGsmSignalStrength() - 116;
@@ -58,6 +63,18 @@ public class PhoneSignalStateListener extends PhoneStateListener {
         }
         prevCriteria = SIGNAL_CRITERIA_LIST.get(SIGNAL_CRITERIA_LIST.size() - 1);
         return new SignalCriteria(asu, prevCriteria.getTitle(), prevCriteria.getColor());
+    }
+
+    private void validateSimCardAndSignalLevel() throws MeasuringStrengthException {
+        if (mLastSignalStrength.getGsmSignalStrength() == 99) {
+            throw new MeasuringStrengthException(mContext.getString(R.string.not_detectable));
+        } else if (!isSimCardInValidState()) {
+            throw new MeasuringStrengthException(mContext.getString(R.string.no_sim_card));
+        }
+    }
+
+    private boolean isSimCardInValidState() {
+        return mTelephonyManager.getSimState() == TelephonyManager.SIM_STATE_READY;
     }
 
     public interface SignalState {
