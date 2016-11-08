@@ -8,6 +8,7 @@ import android.support.v7.widget.Toolbar;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.style.ForegroundColorSpan;
+import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 
@@ -17,6 +18,8 @@ import pervacio.com.signalmeasurer.SignalCriteria;
 
 public class MainActivity extends AppCompatActivity implements
         PhoneSignalStateListener.SignalState {
+
+    public static final String TAG = MainActivity.class.getSimpleName();
 
     private TextView mOnRequestMeasurer;
     private TextView mRealTimeMeasurer;
@@ -34,21 +37,23 @@ public class MainActivity extends AppCompatActivity implements
         mRealTimeMeasurer = (TextView) findViewById(R.id.signal_strength_real_time);
         mRealTimeMeasurerDrawable = (GradientDrawable) mRealTimeMeasurer.getBackground();
         mRealTimeMeasurerDrawable.setColor(0xFFFFFF);
-        mPhoneStateListener = new PhoneSignalStateListener(this, this);
+        mPhoneStateListener = new PhoneSignalStateListener(this, PhoneSignalStateListener.LEVEL, this);
     }
 
     public void measureStrength(View view) {
         try {
-            mOnRequestMeasurer.setText(getString(R.string.on_request_string, mPhoneStateListener.getAsu(), mPhoneStateListener.getDbm()));
+            mOnRequestMeasurer.setText(getString(R.string.on_request_string, mPhoneStateListener.getMeasuredValueOrThrow(PhoneSignalStateListener.LEVEL), mPhoneStateListener.getMeasuredValueOrThrow(PhoneSignalStateListener.ASU)));
+            Log.w(TAG, "measureStrength: " + getString(R.string.on_request_string, mPhoneStateListener.getMeasuredValueOrThrow(PhoneSignalStateListener.LEVEL), mPhoneStateListener.getMeasuredValueOrThrow(PhoneSignalStateListener.ASU)));
         } catch (MeasuringStrengthException e) {
-            mOnRequestMeasurer.setText(e.getMessage());
+            e.printStackTrace();
         }
     }
 
     @Override
     public void onSignalChanged(SignalCriteria criteria) {
-        mRealTimeMeasurer.setText(getString(R.string.real_time_string, criteria.getAsu(), criteria.getTitle()));
+        mRealTimeMeasurer.setText(getString(R.string.real_time_string, criteria.getValue(), criteria.getTitle()));
         mRealTimeMeasurerDrawable.setColor(criteria.getColor());
+        Log.w(TAG, "onSignalChanged: " + getString(R.string.real_time_string, criteria.getValue(), criteria.getTitle()));
     }
 
     @Override
@@ -56,6 +61,6 @@ public class MainActivity extends AppCompatActivity implements
         SpannableString spannable = new SpannableString(message);
         spannable.setSpan(new ForegroundColorSpan(Color.YELLOW), 0, message.length() - 1, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
         mRealTimeMeasurer.setText(message);
+        Log.w(TAG, "onFailedToMeasure: " + message);
     }
-
 }
