@@ -4,9 +4,11 @@ import android.graphics.Color;
 
 import java.nio.charset.UnsupportedCharsetException;
 
+import pervacio.com.signalmeasurer.models.SignalStrengthAdapter;
+
 public class SignalCriteria {
 
-    private int mValue = 99;
+    private SignalStrengthAdapter mValue;
     private String mTitle;
     private int mColor;
 
@@ -24,7 +26,7 @@ public class SignalCriteria {
         this.mTitle = criteria[1];
     }
 
-    public int getValue() {
+    public SignalStrengthAdapter getValue() {
         return mValue;
     }
 
@@ -36,7 +38,7 @@ public class SignalCriteria {
         return mColor;
     }
 
-    public void setValue(int value) {
+    public void setValue(SignalStrengthAdapter value) {
         this.mValue = value;
     }
 

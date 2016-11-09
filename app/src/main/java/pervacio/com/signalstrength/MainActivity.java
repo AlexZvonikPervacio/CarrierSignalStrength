@@ -37,23 +37,23 @@ public class MainActivity extends AppCompatActivity implements
         mRealTimeMeasurer = (TextView) findViewById(R.id.signal_strength_real_time);
         mRealTimeMeasurerDrawable = (GradientDrawable) mRealTimeMeasurer.getBackground();
         mRealTimeMeasurerDrawable.setColor(0xFFFFFF);
-        mPhoneStateListener = new PhoneSignalStateListener(this, PhoneSignalStateListener.LEVEL, this);
+        mPhoneStateListener = new PhoneSignalStateListener(this, this);
     }
 
     public void measureStrength(View view) {
         try {
-            mOnRequestMeasurer.setText(getString(R.string.on_request_string, mPhoneStateListener.getMeasuredValueOrThrow(PhoneSignalStateListener.LEVEL), mPhoneStateListener.getMeasuredValueOrThrow(PhoneSignalStateListener.ASU)));
-            Log.w(TAG, "measureStrength: " + getString(R.string.on_request_string, mPhoneStateListener.getMeasuredValueOrThrow(PhoneSignalStateListener.LEVEL), mPhoneStateListener.getMeasuredValueOrThrow(PhoneSignalStateListener.ASU)));
+            mOnRequestMeasurer.setText(getString(R.string.on_request_string, mPhoneStateListener.getSignalStrength().getGsmLevelOrThrow(),  mPhoneStateListener.getSignalStrength().getGsmAsuLevelOrThrow()));
+            Log.w(TAG, "measureStrength: " + getString(R.string.on_request_string, mPhoneStateListener.getSignalStrength().getGsmLevelOrThrow(),  mPhoneStateListener.getSignalStrength().getGsmAsuLevelUnchecked()));
         } catch (MeasuringStrengthException e) {
-            e.printStackTrace();
+            mOnRequestMeasurer.setText(e.getMessage());
         }
     }
 
     @Override
     public void onSignalChanged(SignalCriteria criteria) {
-        mRealTimeMeasurer.setText(getString(R.string.real_time_string, criteria.getValue(), criteria.getTitle()));
+        mRealTimeMeasurer.setText(getString(R.string.real_time_string, criteria.getValue().getGeneralAsuLevel(), criteria.getTitle()));
         mRealTimeMeasurerDrawable.setColor(criteria.getColor());
-        Log.w(TAG, "onSignalChanged: " + getString(R.string.real_time_string, criteria.getValue(), criteria.getTitle()));
+        Log.w(TAG, "onSignalChanged: " + getString(R.string.real_time_string, criteria.getValue().getGeneralAsuLevel(), criteria.getTitle()));
     }
 
     @Override
